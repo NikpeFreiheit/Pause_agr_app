@@ -1,0 +1,65 @@
+@startuml
+autonumber
+skinparam actorStyle awesome
+actor Client as cl
+participant Application as app
+
+box Backend
+participant Backend
+database DB as db
+
+activate app #lightyellow
+cl->app: создание запроса \nна приостановление договора
+    activate app #lightblue
+    activate app #lightgreen
+app-> Backend : Есть ли задолженность \nпо договору
+alt
+    Backend->db : Есть ли задолженность \nпо договору
+    db-->Backend:Есть задолженность
+    Backend-->app:Есть задолженность
+    app-->cl: По договору \nесть задолженность
+end alt
+db-->Backend: Задолженности нет
+Backend-->app:Задолженности нет
+    deactivate app #lightgreen
+
+app-> Backend : Еще есть дни \nдля приостановки?
+Backend->db: Сколько дней \nбыло потрачено в \nтекущем году для приостановки?
+db-->Backend: *Дата начала договора, \n*Количество дней потраченых \nна приостановку
+Backend->Backend: Расчет доступных дней
+alt
+    Backend-->app: Нет доступных дней
+    app-->cl: По договору нет \nдоступных дней \nдля приостановки
+end alt
+    deactivate app #lightblue
+Backend-->app: Еще n-дней
+app-> Backend : Дата начала \nприостановки
+Backend->Backend: Выбранная \nдата больше сегодня?
+alt
+    Backend-->app: Дата меньше \nили равна сегодняшней
+    app-->cl: Выбирете \nдругую дату
+end alt
+
+Backend-->app: Дата больше \nсегодняшней
+
+Backend->db: Добавление даты \nначала приостановки
+
+app-> Backend : Дата окончания \nприостановки
+Backend->Backend: Выбранная дата \nбольше сегодня?
+alt
+    Backend-->app: Дата меньше \nили равна сегодняшней
+    app-->cl: Выбирете \nдругую дату
+end alt
+Backend->Backend: Выбранная дата \nбольше даты \nначала приостановки?
+alt
+    Backend-->app: Дата меньше \nили равна дате \nначала приостановки
+    app-->cl: Выбирете \nдругую дату
+end alt
+
+Backend->db: Добавление даты окончания приостановки
+app->Backend: Добавление причины приостановки
+Backend->db: Добавление причины приостановки
+db-->Backend: Заявка создана
+Backend-->app: Заявка создана
+deactivate app #lightyellow
+@enduml

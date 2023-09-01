@@ -1,0 +1,77 @@
+//Валидация:
+start_at>Sysdate
+end_at>Sysdate or end_at=>start_at
+проверяем что дни новой паузы не пересекаются с уже существующими паузами 
+сумма дней+сумма использованных дней<90, иначе возвращаем ошибку
+
+//Добавить паузу на договор 
+
+POST
+agreements/{agreement_id}/pause 
+Body:
+{
+    "agreements":{
+    "agreement_id":"string",
+    "pause":{
+        "start_at":"string",//dd-mm-yyyy hh:mm:ss
+        "end_at":"string",//dd-mm-yyyy hh:mm:ss
+        "reason_name":"enum",//справочник
+    }
+}
+}
+
+//Обновить паузу на договоре
+PUT
+agreements/{agreement_id}/pause
+Body:
+{
+    "agreements":{
+    "agreement_id":"string",
+    "pause":{
+        "end_at":"string",//dd-mm-yyyy hh:mm:ss
+        "reason_name":"enum",//справочник
+    }
+}
+}
+
+//Получить список постановок на паузу
+GET
+agreements/{agreement_id}/pause 
+/*+параметры запроса page_number= и page_size=...
+для пагинации, чтобы не возвращать слишком много данных в одном запросе 
+*/
+
+
+//Удалить поставноку на паузу
+DELETE
+agreements/{agreement_id}/pause/{pause_id} 
+
+
+//Оставшийся лимит по суммарной длительности приостановок по договору
+GET 
+clients/{client_id}/day_count 
+
+//Request
+{
+"client":{
+    "client_id":"string",
+},
+"day_count":"string"
+}
+
+
+//Запрос информации, есть ли задолженность по договору
+//Respounce
+GET 
+agreements/{agreement_id}/due_amount  
+
+//Request
+{
+"clients":{
+    "client_id":"string",
+},
+"agreements":{
+    "agreement_id":"string",
+    "due_amount":"string"
+}
+}
